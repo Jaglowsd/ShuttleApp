@@ -41,23 +41,15 @@
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin">
 
-
             <Button
-                android:text="Send Your Location to Riders"
-                android:layout_width="wrap_content"
+                android:text="Refresh Passengers"
+                android:layout_marginTop="15dp"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/send_location"
-                android:layout_centerHorizontal="true" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:gravity="center"
-                android:layout_below="@+id/send_location"
-                android:layout_marginTop="20dp"
-                android:id="@+id/checked_in_passengers"
-                android:text="Checked In Passengers"
-                android:textSize="18sp"/>
+                android:id="@+id/refresh_clipboard"
+                android:layout_centerHorizontal="true"
+                android:background="@color/Lawrence_secondary_blue"
+                android:textColor="@color/default_color"/>
 
             <ListView
                 android:id="@+id/check_list_view"
@@ -69,6 +61,67 @@
                 android:layout_marginTop="74dp">
 
             </ListView>
+
+            <!--
+            <TextView
+                android:text="Longitude filler"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/longitudeText"
+                android:layout_below="@+id/longitudeLabel"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="26dp"
+                android:layout_marginStart="26dp"
+                android:layout_marginBottom="34dp"
+                android:textSize="20sp" />
+
+            <TextView
+                android:text="Longitude"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/longitudeLabel"
+                android:layout_alignParentTop="true"
+                android:layout_alignLeft="@+id/longitudeText"
+                android:layout_alignStart="@+id/longitudeText"
+                android:textSize="20sp" />
+
+            <TextView
+                android:text="Latitude filler"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/latitudeText"
+                android:layout_alignBaseline="@+id/longitudeText"
+                android:layout_alignBottom="@+id/longitudeText"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginRight="33dp"
+                android:layout_marginEnd="33dp"
+                android:textSize="20sp" />
+
+            <TextView
+                android:text="Latitude"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/latitudeLabel"
+                android:layout_alignParentTop="true"
+                android:layout_alignLeft="@+id/latitudeText"
+                android:layout_alignStart="@+id/latitudeText"
+                android:textSize="20sp" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:layout_marginTop="43dp"
+                android:id="@+id/checked_in_passengers"
+                android:text="Checked In Passengers"
+                android:textSize="18sp"
+                android:layout_below="@+id/send_location"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+                -->
 
         </RelativeLayout>
 

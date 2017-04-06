@@ -35,6 +35,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -140,20 +141,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
+        mLoginFormView = findViewById(R.id.email_login_form);
         mProgressView = findViewById(R.id.login_progress);
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
-        Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
+        Toolbar mActionBarToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mActionBarToolbar);
-        getSupportActionBar().setTitle("Login");
+        getSupportActionBar().setTitle("ShuttleMe");
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 
     private void registerActivity() {
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
+        finish();
     }
 
     /*
@@ -412,7 +418,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected String[] doInBackground(String... params) {
 
-            String[] result = {"", ""};
+            String[] result = {"", "", ""};
 
             try {
                 int TIMEOUT_MILLISEC = 10000;  // = 10 seconds
@@ -427,8 +433,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
 
                 JSONObject root = new JSONObject(reader.readLine());
-                result[0] = root.getString("userid");
-                result[1] = root.getString("role");
+                result[0] = root.getString("name");
+                result[1] = root.getString("userid");
+                result[2] = root.getString("role");
 
                 return result;
 
@@ -436,6 +443,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
+
             }
             return result;
         }
@@ -455,14 +463,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
             */
 
-            if(success[0] != "") {
+            //if(!success[2].equals("")) {
                 redirectByRole(success);
-                Log.d("Login Activity", "We in boy! " + success[1]);
+                System.out.print("Success means this: " + success[2]);
+                Log.d("Login Activity", success[2]);
+            /*
             }
             else {
                 Log.d("Login Activity", "Need to create an account or Server issue! " + success[1]);
+                Toast.makeText(getApplicationContext(), "Need to create an account or Server issue!", Toast.LENGTH_SHORT).show();
+
                 // TODO: Need to notify the user that they need to create an account since their email/pass combo is invalid or that there was an error
             }
+            */
         }
 
         @Override
@@ -472,29 +485,38 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         protected void redirectByRole(String[] success) {
-            if(success[1].equals("0")) {
+            if(success[2].equals("0")) {
             // Intent for user activity
                 Intent intent = new Intent(getApplicationContext(), PassengerActivity.class);
-                intent.putExtra("USER_ID", success[0]);
+                intent.putExtra("USER_ID", success[1]);
                 startActivity(intent);
-                Log.d("Login Activity", "Role: " + success[1]);
-            } else if(success[1].equals("1")) {
+                finish();
+                Log.d("Login Activity", "Role: " + success[2]);
+            } else if(success[2].equals("1")) {
+                // checkforExistingLogin();
                 // Intent for driver activity
                 Intent intent = new Intent();
+                Bundle extras = new Bundle();
                 intent.setClass(getApplicationContext(),DriverActivity.class);
+                extras.putString("DRIVER_NAME", success[0]);
+                extras.putString("DRIVER_ID", success[1]);
+                intent.putExtras(extras);
                 startActivity(intent);
-                Log.d("Login Activity", "Role: " + success[1]);
-            } else if(success[1].equals("2")) {
+                finish();
+                Log.d("Login Activity", "Role: " + success[2]);
+            } else if(success[2].equals("2")) {
                 // Intent for admin activity
                 Intent intent = new Intent();
-                intent.setClass(getApplicationContext(),DriverManager.class);
+                intent.setClass(getApplicationContext(),RouteManager.class);
                 startActivity(intent);
-                Log.d("Login Activity", "Role: " + success[1]);
-            } else if (success[1].equals("-1")) {
+                finish();
+                Log.d("Login Activity", "Role: " + success[2]);
+            } else if (success[2].equals("")) {
                 // Something went horribly wrong
-                Intent intent = new Intent();
-                intent.setClass(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+                View focusView = null;
+                mEmailView.setError("Email-password combination does not exist");
+                focusView = mEmailView;
+                focusView.requestFocus();
             }
                 return;
             // TODO: Redirect the user based on their role

@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -57,8 +60,10 @@ public class RouteManager extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_manager);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("ShuttleMe");
 
         mSpinnerView = (Spinner) findViewById(R.id.route_list_spinner);
         mRouteDescriptionView = (TextView) findViewById(R.id.route_description);
@@ -108,7 +113,7 @@ public class RouteManager extends AppCompatActivity {
         });
 
         // Go to Create Route Activity when button pressed
-        mCreateRouteButton = (Button) findViewById(R.id.create_route);
+        mCreateRouteButton = (Button) findViewById(R.id.finalize_route);
         mCreateRouteButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -127,6 +132,38 @@ public class RouteManager extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onBackPressed() {
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_passenger, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.action_settings:
+                Intent intent = new Intent(this, LoginActivity.class);
+                this.startActivity(intent);
+                this.finish();
+                break;
+            /*
+            case R.id.menu_item2:
+                // another startActivity, this is for item with id "menu_item2"
+                break;
+            */
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return true;
     }
 
     // After response from server, parse JSON, get all routes
@@ -162,10 +199,11 @@ public class RouteManager extends AppCompatActivity {
                     else{
                         routes.add(route_name);
                     }
-                    // Add id and description to the temp info list
+                    // Add id and description and assignment to the temp info list
                     List<String> temporary_info_list = new ArrayList<String>();
                     temporary_info_list.add(route_id);
                     temporary_info_list.add(route_description);
+                    temporary_info_list.add(route_assignment);
 
                     // Add name of the route with its list of id and description to the hashmap
                     routes_and_info.put(route_name, temporary_info_list);
@@ -213,25 +251,27 @@ public class RouteManager extends AppCompatActivity {
 
     // Find route selected, update database
     public void assignRoute(){
-        String id = String.valueOf(routes.get(current_position));
+
+        // Get list containing route info stored in hashmap by route name of position selection
+        List<String> tempList = routes_and_info.get(routes.get(current_position));
 
         // Trying to assign the already assigned route
-        if(current_position == 0){
-            Toast.makeText(getApplicationContext(), "This is the route that is already assigned", Toast.LENGTH_SHORT).show();
+        // Check if route is assigned
+        if(Integer.valueOf(tempList.get(2)) == 1){
+            Toast.makeText(getApplicationContext(), "This is already the assigned route", Toast.LENGTH_SHORT).show();
         }
         // Change assignment of previously assigned route
         // And new assigned route
         else{
-            // Get list stored in hashmap by route name of position selection
-            List<String> tempList = routes_and_info.get(routes.get(current_position));
-
             // Index 0 stores id
             String newid = tempList.get(0);
             new changeAssignmentOfRouteTask(this, "http://143.44.78.173:8080/route/changeassignment?routeid="+newid).execute();
 
             tempList = routes_and_info.get(routes.get(0));
-            String oldid = tempList.get(0);
-            new changeAssignmentOfRouteTask(this, "http://143.44.78.173:8080/route/changeassignment?routeid="+oldid).execute();
+            if(Integer.valueOf(tempList.get(2)) == 1){
+                String oldid = tempList.get(0);
+                new changeAssignmentOfRouteTask(this, "http://143.44.78.173:8080/route/changeassignment?routeid="+oldid).execute();
+            }
 
             // Execute a task to retrieve updated routes from database
             new RetrieveRoutesTask(this, "http://143.44.78.173:8080/route/getall").execute();
@@ -246,7 +286,15 @@ public class RouteManager extends AppCompatActivity {
 
         // Index 0 stores id
         String id = tempList.get(0);
-        new deleteRouteTask(this, "http://143.44.78.173:8080/route/deleteroute?routeid="+id).execute();
+        // If trying to delete assigned route
+        if(Integer.valueOf(tempList.get(2))==1){
+            // Can't delete assigned route
+            Toast.makeText(getApplicationContext(), "Cannot delete assigned route", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            new deleteRouteTask(this, "http://143.44.78.173:8080/route/deleteroute?routeid="+id).execute();
+        }
+
     }
 
     // If successful in deleting
@@ -395,7 +443,8 @@ class RetrieveRoutesTask extends AsyncTask<String, String, String> {
 }
 
 // Assign route task
-class changeAssignmentOfRouteTask extends AsyncTask<String, String, Integer> {
+class
+changeAssignmentOfRouteTask extends AsyncTask<String, String, Integer> {
 
     RouteManager caller;
     String uRL;
